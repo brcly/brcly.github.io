@@ -1,113 +1,603 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brcly's Portfolio</title>
-    <script src="https://kit.fontawesome.com/fad640fa04.js" crossorigin="anonymous"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: url('./content/bg.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .top-bar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 1);
-        }
-        .top-bar a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-        }
-        .top-bar .name {
-            margin-right: 15px;
-        }
-        .top-bar .separator {
-            margin: 0 15px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .content {
-            text-align: center;
-            margin-top: 100px;
-        }
-        .box {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(15px);
-            padding: 20px;
-            border-radius: 10px;
-            display: inline-block;
-            margin: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 1);
-            transition: transform 0.2s;
-        }
-        .box:hover {
-            transform: scale(1.05);
-        }
-        .box a {
-            color: white;
-            text-decoration: none;
-        }
-        .dock {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: flex;
-            gap: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 1);
-        }
-        .dock a {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
-            transition: transform 0.2s;
-        }
-        .dock a:hover {
-            transform: scale(1.3);
-        }
-        .dock img {
-            width: 24px; /* Matches the font-size of the previous icons */
-            height: 24px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brcly.xyz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:       #0a0a0a;
+      --surface:  #111111;
+      --border:   #1e1e1e;
+      --accent:   #00c8ff;
+      --accent2:  #0077aa;
+      --text:     #f0f0f0;
+      --muted:    #555555;
+      --font:     'Space Grotesk', sans-serif;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      cursor: default;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    /* ── Side Nav Dots ── */
+    .sidenav {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .sidenav a {
+      display: block;
+      width: 6px;
+      height: 6px;
+      background: var(--muted);
+      transition: background 0.3s, transform 0.3s;
+      text-decoration: none;
+    }
+
+    .sidenav a.active,
+    .sidenav a:hover {
+      background: var(--accent);
+      transform: scale(1.6);
+    }
+
+    /* ── Sections ── */
+    section {
+      scroll-snap-align: start;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 10vw;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    /* ── Animation ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Section Label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--accent);
+      margin: 20px 0 36px;
+    }
+
+    /* ═══════════════════════════════
+       §1 — ABOUT
+    ═══════════════════════════════ */
+    #about .name {
+      font-size: clamp(56px, 10vw, 120px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -3px;
+      color: var(--text);
+    }
+
+    #about .name span {
+      color: var(--accent);
+    }
+
+    #about .tagline {
+      margin-top: 24px;
+      font-size: clamp(14px, 2vw, 18px);
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    #about .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    #about .chip {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    #about .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    #about .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 10vw;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #about .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--muted);
+    }
+
+    /* ═══════════════════════════════
+       §2 — SKILLS
+    ═══════════════════════════════ */
+    #skills h2 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 4px;
+    }
+
+    .skill-card {
+      background: var(--bg);
+      padding: 28px 24px;
+      transition: background 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skill-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 0;
+      background: var(--accent);
+      transition: height 0.3s ease;
+    }
+
+    .skill-card:hover {
+      background: var(--surface);
+    }
+
+    .skill-card:hover::before {
+      height: 100%;
+    }
+
+    .skill-icon {
+      font-size: 22px;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .skill-name {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .skill-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════
+       §3 — PROJECTS
+    ═══════════════════════════════ */
+    #projects h2 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 4px;
+    }
+
+    .project-card {
+      background: var(--bg);
+      padding: 32px 28px;
+      transition: background 0.25s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .project-card:hover {
+      background: var(--surface);
+    }
+
+    .project-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .project-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .project-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      transition: gap 0.2s;
+    }
+
+    .project-link:hover {
+      gap: 14px;
+    }
+
+    .project-link::after {
+      content: '→';
+    }
+
+    /* ═══════════════════════════════
+       §4 — SOCIAL
+    ═══════════════════════════════ */
+    #social h2 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 4px;
+    }
+
+    .social-card {
+      background: var(--bg);
+      padding: 36px 28px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: background 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-card::after {
+      content: '↗';
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      font-size: 18px;
+      color: var(--muted);
+      transition: color 0.25s, transform 0.25s;
+    }
+
+    .social-card:hover {
+      background: var(--surface);
+    }
+
+    .social-card:hover::after {
+      color: var(--accent);
+      transform: translate(2px, -2px);
+    }
+
+    .social-platform {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .social-handle {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .social-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      scroll-snap-align: none;
+      padding: 24px 10vw;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer span {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    footer a {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      section { padding: 60px 6vw; }
+      .sidenav { display: none; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="name">Brcly</div>
-        <div class="separator">|</div>
-        <div>
-            <a href="#home">Home</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
-        </div>
-    </div>
 
-    <div class="content">
-        <div class="box"><a href="#coming-soon">More Coming Soon</a></div>
-    </div>
+  <!-- Side Navigation Dots -->
+  <nav class="sidenav" aria-label="Page sections">
+    <a href="#about"    class="active" title="About"></a>
+    <a href="#skills"            title="Skills"></a>
+    <a href="#projects"          title="Projects"></a>
+    <a href="#social"            title="Social"></a>
+  </nav>
 
-    <div class="dock">
-        <a href="https://x.com/brclyxo" target="_blank"><i class="fab fa-x-twitter"></i></a>
-        <a href="https://github.com/brcly" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://steamcommunity.com/id/brcly" target="_blank"><i class="fab fa-steam"></i></a>
+  <!-- ═══ §1 ABOUT ═══ -->
+  <section id="about">
+    <p class="section-label reveal">Portfolio</p>
+    <h1 class="name reveal">BRC<span>LY</span></h1>
+    <p class="tagline reveal">
+      I build, break, and secure systems. From bare-metal hardware to kernel-level code —
+      if it runs on silicon, I'm interested in it.
+    </p>
+    <div class="chips reveal">
+      <span class="chip">PC Hardware</span>
+      <span class="chip">Server Management</span>
+      <span class="chip">Software Development</span>
+      <span class="chip">Linux</span>
+      <span class="chip">Reverse Engineering</span>
+      <span class="chip">Cyber-Security</span>
+      <span class="chip">Open-Source</span>
     </div>
+    <p class="scroll-hint">Scroll</p>
+  </section>
+
+  <!-- ═══ §2 SKILLS ═══ -->
+  <section id="skills">
+    <p class="section-label reveal">What I do</p>
+    <h2 class="reveal">Skills</h2>
+    <div class="divider reveal"></div>
+    <div class="skills-grid reveal">
+
+      <div class="skill-card">
+        <span class="skill-icon">⚙️</span>
+        <div class="skill-name">PC Hardware</div>
+        <div class="skill-desc">Custom builds, part selection, overclocking, thermal management, and troubleshooting.</div>
+      </div>
+
+      <div class="skill-card">
+        <span class="skill-icon">🖥️</span>
+        <div class="skill-name">Server Management</div>
+        <div class="skill-desc">Bare-metal to virtualised environments, network configuration, uptime, and maintenance.</div>
+      </div>
+
+      <div class="skill-card">
+        <span class="skill-icon">💻</span>
+        <div class="skill-name">Software Development</div>
+        <div class="skill-desc">Designing and building software across the stack — from low-level to application layer.</div>
+      </div>
+
+      <div class="skill-card">
+        <span class="skill-icon">🐧</span>
+        <div class="skill-name">Linux</div>
+        <div class="skill-desc">Distro setup, system administration, scripting, package management, and kernel tuning.</div>
+      </div>
+
+      <div class="skill-card">
+        <span class="skill-icon">🔬</span>
+        <div class="skill-name">Reverse Engineering</div>
+        <div class="skill-desc">Static and dynamic analysis, disassembly, decompilation, and understanding binary behaviour.</div>
+      </div>
+
+      <div class="skill-card">
+        <span class="skill-icon">🛡️</span>
+        <div class="skill-name">Cyber-Security</div>
+        <div class="skill-desc">Vulnerability research, CTFs, threat analysis, and hardening systems against attack.</div>
+      </div>
+
+      <div class="skill-card">
+        <span class="skill-icon">📦</span>
+        <div class="skill-name">Open-Source</div>
+        <div class="skill-desc">Building and contributing to public projects — collaborative, documented, and community-driven.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ §3 PROJECTS ═══ -->
+  <section id="projects">
+    <p class="section-label reveal">What I've built</p>
+    <h2 class="reveal">Projects</h2>
+    <div class="divider reveal"></div>
+    <div class="projects-grid reveal">
+
+      <!-- Replace these cards with your actual projects -->
+      <div class="project-card">
+        <span class="project-tag">Open-Source</span>
+        <div class="project-name">AimTux</div>
+        <div class="project-desc">Godfather of CS:GO Cheats (now archived). I made the entire GUI which is still used in modern forks.</div>
+        <a href="https://github.com/AimTuxOfficial/AimTux" class="project-link">View on GitHub</a>
+      </div>
+
+      <div class="project-card">
+        <span class="project-tag">Open-Source</span>
+        <div class="project-name">Hearthstone-Linux</div>
+        <div class="project-desc">Helped improved the initial installation script for the project to prevent it downloading multiple GB's of data.</div>
+        <a href="https://github.com/0xf4b1/hearthstone-linux" class="project-link">View on GitHub</a>
+      </div>
+
+      <div class="project-card">
+        <span class="project-tag">Server Management</span>
+        <div class="project-name">Crafty Controller</div>
+        <div class="project-desc">Created a tutorial for setting up modded Minecraft instances in Crafty Controller.</div>
+        <a href="https://www.youtube.com/watch?v=6B8Q1zBhxno" class="project-link">View on YouTube</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ §4 SOCIAL ═══ -->
+  <section id="social">
+    <p class="section-label reveal">Find me</p>
+    <h2 class="reveal">Social</h2>
+    <div class="divider reveal"></div>
+    <div class="social-grid reveal">
+
+      <a href="https://x.com/brclyxo" target="_blank" rel="noopener" class="social-card">
+        <span class="social-platform">X / Twitter</span>
+        <span class="social-handle">@brcly</span>
+        <span class="social-desc">Thoughts, tech takes, and whatever I'm currently breaking.</span>
+      </a>
+
+      <a href="https://github.com/brcly" target="_blank" rel="noopener" class="social-card">
+        <span class="social-platform">GitHub</span>
+        <span class="social-handle">brcly</span>
+        <span class="social-desc">Open-source projects, tools, and contributions.</span>
+      </a>
+
+      <a href="https://steamcommunity.com/id/brcly" target="_blank" rel="noopener" class="social-card">
+        <span class="social-platform">Steam</span>
+        <span class="social-handle">brcly</span>
+        <span class="social-desc">Games I play when I'm not staring at terminals.</span>
+      </a>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>BRCLY.XYZ</span>
+    <a href="mailto:brcly@tuta.io">brcly@tuta.io</a>
+  </footer>
+
+  <script>
+    // ── Reveal on scroll ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Active nav dot ──
+    const sections   = document.querySelectorAll('section');
+    const navLinks   = document.querySelectorAll('.sidenav a');
+
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const id = e.target.getAttribute('id');
+          const active = document.querySelector(`.sidenav a[href="#${id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.5 });
+
+    sections.forEach(s => sectionObserver.observe(s));
+  </script>
 </body>
 </html>
