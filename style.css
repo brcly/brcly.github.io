@@ -35,14 +35,20 @@ a:hover{color:var(--amber)}
 .tb-right b{color:var(--fg);font-weight:400}
 .pill{color:var(--cyan)}
 
-/* ── tiling desktop ── */
-.desk{flex:1;display:flex;gap:var(--gap);padding:var(--gap);align-items:flex-start}
-.col-main{flex:1 1 auto;min-width:0}
-.col-side{flex:0 0 42%;min-width:0;display:flex;flex-direction:column;gap:var(--gap)}
-
+/* ── tiling desktop (2×2 grid on wide screens) ── */
+.desk{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:auto auto;
+  gap:var(--gap);
+  padding:var(--gap);
+  align-items:start;
+}
 .win{background:linear-gradient(180deg,var(--panel),var(--panel2));
   border:1px solid var(--edge);border-radius:12px;overflow:hidden;
-  box-shadow:0 20px 44px -30px #000, inset 0 1px 0 #ffffff08}
+  box-shadow:0 20px 44px -30px #000, inset 0 1px 0 #ffffff08;
+  min-width:0}
 .win.focus{border-color:#4a3f35;box-shadow:0 0 0 1px var(--amber) inset,0 20px 44px -26px #000}
 .tab{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid var(--edge);background:#0d0d15;font-size:12.5px;color:var(--dim)}
 .dot{width:11px;height:11px;border-radius:50%}
@@ -96,24 +102,37 @@ a:hover{color:var(--amber)}
 .botbar a.mail{color:var(--cyan)}
 
 /* ── staged spawn (JS only; no-js shows everything) ── */
-.js .col-side{flex-basis:0;opacity:0;overflow:hidden;margin-left:calc(var(--gap) * -1);
-  transition:flex-basis .55s cubic-bezier(.4,0,.2,1),opacity .45s ease,margin-left .55s ease}
-.js .desk.tiled .col-side{flex-basis:42%;opacity:1;margin-left:0;overflow:visible}
-.js #projwin{transform:scale(.985);transform-origin:top center}
-.js .desk.tiled #projwin{transform:none;transition:transform .5s ease}
-.js #labwin,.js #socwin{max-height:0;opacity:0;overflow:hidden;margin-top:0;transform:scale(.985);transform-origin:top center;
-  transition:max-height .55s cubic-bezier(.4,0,.2,1),opacity .4s ease,margin-top .5s ease,transform .5s ease}
-.js #labwin.open,.js #socwin.open{max-height:1200px;opacity:1;margin-top:0;transform:none;overflow:visible}
+.js #projects,
+.js #labwin,
+.js #socwin{
+  opacity:0;
+  transform:scale(.97);
+  transform-origin:top center;
+  max-height:0;
+  overflow:hidden;
+  transition:opacity .45s ease, transform .5s ease, max-height .55s cubic-bezier(.4,0,.2,1);
+}
+.js .desk.tiled #projects,
+.js #labwin.open,
+.js #socwin.open{
+  opacity:1;
+  transform:none;
+  max-height:2000px;
+  overflow:visible;
+}
 
 @media (max-width:820px){
-  .desk{flex-direction:column;padding:10px}
-  .col-main,.col-side{width:100%;flex:none}
-  .js .col-side{flex-basis:auto;max-height:0;margin-left:0;margin-top:calc(var(--gap) * -1);
-    transition:max-height .55s ease,opacity .45s ease,margin-top .55s ease;overflow:hidden}
-  .js .desk.tiled .col-side{max-height:none;margin-top:0;overflow:visible}
-  /* kill the fixed max-height on mobile so windows grow with content */
-  .js #labwin,.js #socwin{max-height:0}
-  .js #labwin.open,.js #socwin.open{max-height:none;overflow:visible}
+  .desk{
+    grid-template-columns:1fr;
+    grid-template-rows:auto;
+    padding:10px;
+  }
+  .js #projects,
+  .js #labwin,
+  .js #socwin{max-height:0}
+  .js .desk.tiled #projects,
+  .js #labwin.open,
+  .js #socwin.open{max-height:none}
   .brand{display:none}
   .topbar{padding:8px 10px;gap:6px}
   .tb-right{gap:8px;font-size:12px}
@@ -128,12 +147,12 @@ a:hover{color:var(--amber)}
 @media (max-width:420px){
   .ws{gap:4px}
   .ws a{padding:2px 6px;font-size:11.5px}
-  .tb-right span:nth-child(2){display:none} /* hide "wm tiling" on very narrow */
+  .tb-right span:nth-child(2){display:none}
   .mini{float:none;display:block;margin:0 auto 10px;width:64px;height:64px}
   .whoami{text-align:center}
   .whoami .head,.whoami .sub{display:block}
 }
 @media (prefers-reduced-motion:reduce){
-  .js .col-side,.js #projwin,.js #labwin,.js #socwin{transition:none}
+  .js #projects,.js #labwin,.js #socwin{transition:none}
   .cursor{animation:none}
 }
