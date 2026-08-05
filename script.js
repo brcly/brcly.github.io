@@ -15,6 +15,15 @@
     if(window.innerWidth<=820){e.preventDefault();(win[id]).scrollIntoView({behavior:'smooth',block:'center'});}
   });});
 
+  // Clicking a terminal window focuses/highlights it
+  Object.keys(win).forEach(function(id){
+    win[id].addEventListener('click', function(e){
+      // don't steal focus from links inside
+      if(e.target.closest('a')) return;
+      focusWin(id);
+    });
+  });
+
   // capture each transcript, then (if animating) clear for replay
   function grab(id){var s=d.getElementById(id);return {el:s,nodes:Array.prototype.slice.call(s.children)};}
   var M=grab('mainscr'),P=grab('projscr'),L=grab('labscr'),S=grab('socscr');
