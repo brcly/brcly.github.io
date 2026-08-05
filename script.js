@@ -79,7 +79,7 @@
     })();
   }
 
-  // boot sequence: main → projects → lab → social
+  // boot sequence: main → projects → social → lab (matches 2×2 visual order)
   setTimeout(function(){
     play(M,function(){
       if(cancelled)return;
@@ -92,15 +92,15 @@
             if(cancelled)return;
             setTimeout(function(){
               if(cancelled)return;
-              win.lab.classList.add('open');markLive('lab');
+              win.social.classList.add('open');markLive('social');
               setTimeout(function(){
                 if(cancelled)return;
-                play(L,function(){
+                play(S,function(){
                   if(cancelled)return;
                   setTimeout(function(){
                     if(cancelled)return;
-                    win.social.classList.add('open');markLive('social');
-                    setTimeout(function(){ if(!cancelled) play(S); },500);
+                    win.lab.classList.add('open');markLive('lab');
+                    setTimeout(function(){ if(!cancelled) play(L); },500);
                   },280);
                 });
               },520);
