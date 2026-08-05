@@ -4,6 +4,7 @@
   --red:#e74c3c; --yellow:#f1c40f; --green:#2ecc71;
   --p1:#8f745c;--p2:#e0ebe6;--p3:#b3cdd2;--p4:#9ca9a6;--p5:#d5b097;--p6:#eacbb3;--p7:#a06a48;--p8:#686154;
   --gap:12px;
+  --ease:cubic-bezier(.4,0,.2,1);
   --mono:'JetBrains Mono','Fira Code','DejaVu Sans Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
@@ -20,6 +21,18 @@ a{color:var(--cyan);text-decoration:none}
 a:hover{color:var(--amber)}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:0}
 
+/* ── themed scrollbars (match the terminal aesthetic) ── */
+*{scrollbar-width:thin;scrollbar-color:var(--edge) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{
+  background:var(--edge);
+  border:2px solid transparent;   /* inset the thumb so it reads as a thin bar */
+  background-clip:content-box;
+}
+::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+::-webkit-scrollbar-corner{background:transparent}
+
 /* ── top bar (polybar) ── */
 .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;
   padding:8px var(--gap);background:#090910;border-bottom:1px solid var(--edge);font-size:13px}
@@ -35,17 +48,30 @@ a:hover{color:var(--amber)}
 .tb-right b{color:var(--fg);font-weight:400}
 .pill{color:var(--cyan)}
 
-/* ── tiling desktop (2×2 grid on wide screens) ── */
+/* ── tiling desktop (animatable 2×2 grid) ── */
+/* Tracks start collapsed (second col/row = 0fr) so #main fills the desk, then
+   grow to 1fr as each pane spawns. Animating the tracks (not display) is what
+   makes the re-tile smooth. */
 .desk{
   flex:1;
   display:grid;
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1fr 1fr;
+  grid-template-columns:1fr 0fr;
+  grid-template-rows:1fr 0fr;
   gap:var(--gap);
   padding:var(--gap);
   align-items:stretch;
   min-height:0;
+  transition:grid-template-columns .5s var(--ease),
+             grid-template-rows .5s var(--ease);
 }
+/* fixed placement — no grid-area jumps, only track sizes change */
+#main{grid-area:1 / 1}
+#projects{grid-area:1 / 2}
+#socwin{grid-area:2 / 1}
+#labwin{grid-area:2 / 2}
+.desk.split-cols{grid-template-columns:1fr 1fr}
+.desk.split-rows{grid-template-rows:1fr 1fr}
+
 .win{
   background:var(--panel);
   border:1px solid var(--edge);
@@ -69,54 +95,23 @@ a:hover{color:var(--amber)}
 .tab .x{margin-left:auto;color:#3c3c48}
 .scr{padding:18px 16px;flex:1;overflow-y:auto;min-height:0}
 
-/* progressive tiling stages (desktop) */
-/* stage 1 — main alone, full desk */
-.js #main{
-  grid-column:1 / -1;
-  grid-row:1 / -1;
+/* ── spawn reveal (JS only; no-js shows everything) ──
+   Spawning panes fade + settle in as their track grows. #main is always shown. */
+.js #projects,
+.js #socwin,
+.js #labwin{
+  opacity:0;
+  transform:scale(.985);
+  transform-origin:center;
+  pointer-events:none;
+  transition:opacity .45s ease, transform .5s var(--ease);
 }
-/* stage 2 — main | projects  (vertical split, both full height) */
-.desk.stage-2 #main{
-  grid-column:1;
-  grid-row:1 / -1;
-}
-.desk.stage-2 #projects{
-  grid-column:2;
-  grid-row:1 / -1;
-}
-/* stage 3 — top row 50/50, social full bottom */
-.desk.stage-3 #main{
-  grid-column:1;
-  grid-row:1;
-}
-.desk.stage-3 #projects{
-  grid-column:2;
-  grid-row:1;
-}
-.desk.stage-3 #socwin{
-  grid-column:1 / -1;
-  grid-row:2;
-}
-/* stage 4 / tiled — classic 2×2 */
-.desk.stage-4 #main,
-.desk.tiled #main{
-  grid-column:1;
-  grid-row:1;
-}
-.desk.stage-4 #projects,
-.desk.tiled #projects{
-  grid-column:2;
-  grid-row:1;
-}
-.desk.stage-4 #socwin,
-.desk.tiled #socwin{
-  grid-column:1;
-  grid-row:2;
-}
-.desk.stage-4 #labwin,
-.desk.tiled #labwin{
-  grid-column:2;
-  grid-row:2;
+.js #projects.open,
+.js #socwin.open,
+.js #labwin.open{
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
 }
 
 /* transcript lines */
@@ -163,96 +158,27 @@ a:hover{color:var(--amber)}
 .botbar .grow{margin-left:auto}
 .botbar a.mail{color:var(--cyan)}
 
-/* ── staged spawn (JS only; no-js shows everything) ── */
-.js #projects,
-.js #labwin,
-.js #socwin{
-  display:none !important;
-}
-/* reveal windows as their stage arrives */
-.desk.stage-2 #projects,
-.desk.stage-3 #projects,
-.desk.stage-3 #socwin,
-.desk.stage-4 #projects,
-.desk.stage-4 #socwin,
-.desk.stage-4 #labwin,
-.desk.tiled #projects,
-.desk.tiled #socwin,
-.desk.tiled #labwin,
-.js #labwin.open,
-.js #socwin.open{
-  display:flex !important;
-  flex-direction:column;
-  border:1px solid var(--edge);
-  opacity:1;
-  overflow:hidden;
-}
-.desk.stage-2 #projects.focus,
-.desk.stage-3 #projects.focus,
-.desk.stage-3 #socwin.focus,
-.desk.stage-4 #projects.focus,
-.desk.stage-4 #socwin.focus,
-.desk.stage-4 #labwin.focus,
-.desk.tiled #projects.focus,
-.desk.tiled #socwin.focus,
-.desk.tiled #labwin.focus,
-.js #labwin.open.focus,
-.js #socwin.open.focus{
-  border-color:var(--amber);
-  box-shadow:0 0 0 1px var(--amber);
-}
+@keyframes winIn{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
 
 @media (max-width:820px){
+  /* stack into a single column; panes reveal by fading in as they open */
   .desk{
     grid-template-columns:1fr;
-    grid-template-rows:auto;
+    grid-template-rows:none;
+    grid-auto-rows:auto;
     padding:10px;
     align-items:start;
+    transition:none;
   }
-  /* kill progressive spanning on mobile — stack normally */
-  .js #main,
-  .desk.stage-2 #main,
-  .desk.stage-3 #main,
-  .desk.stage-3 #socwin,
-  .desk.stage-4 #main,
-  .desk.stage-4 #projects,
-  .desk.stage-4 #socwin,
-  .desk.stage-4 #labwin,
-  .desk.tiled #main,
-  .desk.tiled #projects,
-  .desk.tiled #socwin,
-  .desk.tiled #labwin{
-    grid-column:auto;
-    grid-row:auto;
-  }
-  .win{
-    height:auto;
-  }
-  .scr{
-    overflow-y:visible;
-    flex:none;
-  }
+  #main,#projects,#socwin,#labwin{grid-area:auto}
+  .win{height:auto}
+  .scr{overflow-y:visible;flex:none}
   .js #projects,
-  .js #labwin,
-  .js #socwin{
-    display:none !important;
-  }
-  .desk.stage-2 #projects,
-  .desk.stage-3 #projects,
-  .desk.stage-3 #socwin,
-  .desk.stage-4 #projects,
-  .desk.stage-4 #socwin,
-  .desk.stage-4 #labwin,
-  .desk.tiled #projects,
-  .desk.tiled #socwin,
-  .desk.tiled #labwin,
-  .js #labwin.open,
-  .js #socwin.open{
-    display:flex !important;
-    flex-direction:column;
-    border:1px solid var(--edge);
-    height:auto;
-  }
+  .js #socwin,
+  .js #labwin{display:none;opacity:1;transform:none;transition:none}
+  .js #projects.open,
+  .js #socwin.open,
+  .js #labwin.open{display:flex;animation:winIn .45s ease both}
   .brand{display:none}
   .topbar{padding:8px 10px;gap:6px}
   .tb-right{gap:8px;font-size:12px}
@@ -273,5 +199,7 @@ a:hover{color:var(--amber)}
   .whoami .head,.whoami .sub{display:block}
 }
 @media (prefers-reduced-motion:reduce){
+  .desk{transition:none}
+  .js #projects,.js #socwin,.js #labwin{transition:none}
   .cursor{animation:none}
 }

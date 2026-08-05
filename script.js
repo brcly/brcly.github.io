@@ -5,7 +5,7 @@
   tick();setInterval(tick,10000);
 
   var desk=d.querySelector('.desk');
-  var win={main:d.getElementById('main'),projects:d.getElementById('projects'),lab:d.getElementById('labwin'),social:d.getElementById('socwin')};
+  var win={main:d.getElementById('main'),projects:d.getElementById('projects'),social:d.getElementById('socwin'),lab:d.getElementById('labwin')};
   var wsLinks=d.querySelectorAll('.ws a');
   function focusWin(id){for(var k in win){win[k].classList.toggle('focus',k===id);}
     wsLinks.forEach(function(l){l.classList.toggle('on',l.getAttribute('data-win')===id);});}
@@ -29,33 +29,29 @@
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   var cancelled=false;
 
-  function setStage(n){
-    desk.classList.remove('stage-2','stage-3','stage-4','tiled');
-    if(n>=2) desk.classList.add('stage-'+n);
-    if(n>=4) desk.classList.add('tiled');
-  }
+  function reveal(id){win[id].classList.add('open');}
+  function splitCols(){desk.classList.add('split-cols');}
+  function splitRows(){desk.classList.add('split-rows');}
 
   function restore(prog){prog.el.innerHTML='';prog.nodes.forEach(function(n){prog.el.appendChild(n.cloneNode(true));});}
   function finishAll(){
     if(cancelled)return;cancelled=true;
     restore(M);restore(P);restore(L);restore(S);
-    setStage(4);
-    win.lab.classList.add('open');
-    win.social.classList.add('open');
-    markLive('projects');markLive('lab');markLive('social');focusWin('main');
+    splitCols();splitRows();
+    reveal('projects');reveal('social');reveal('lab');
+    markLive('projects');markLive('social');markLive('lab');focusWin('main');
   }
   d.addEventListener('keydown',finishAll);
   desk.addEventListener('click',function(e){if(!e.target.closest('a'))finishAll();});
 
   if(reduce){
-    setStage(4);
-    win.lab.classList.add('open');
-    win.social.classList.add('open');
-    markLive('projects');markLive('lab');markLive('social');
+    splitCols();splitRows();
+    reveal('projects');reveal('social');reveal('lab');
+    markLive('projects');markLive('social');markLive('lab');
     return;
   }
 
-  // clear the screens; side windows stay collapsed until spawned
+  // clear the screens; spawning panes stay collapsed/hidden until opened
   [M,P,L,S].forEach(function(p){p.el.innerHTML='';});
 
   function play(prog,onDone){
@@ -82,39 +78,36 @@
     })();
   }
 
-  // Progressive tiling boot:
-  // 1. main full-screen
-  // 2. projects splits vertically (50/50)
-  // 3. social takes full bottom half
-  // 4. lab splits bottom → classic 2×2
+  // Progressive tiling boot (tracks animate → panes grow in smoothly):
+  //  1. main fills the desk and types
+  //  2. right column grows → projects spawns, then types
+  //  3. bottom row grows → social + lab spawn; social types, then lab types
+  var GROW=520;   // ~matches the .5s track transition so a re-tile settles first
   setTimeout(function(){
     play(M,function(){
       if(cancelled)return;
       setTimeout(function(){
         if(cancelled)return;
-        setStage(2);markLive('projects');
+        splitCols();reveal('projects');markLive('projects');       // column grows in
         setTimeout(function(){
           if(cancelled)return;
           play(P,function(){
             if(cancelled)return;
             setTimeout(function(){
               if(cancelled)return;
-              setStage(3);win.social.classList.add('open');markLive('social');
+              splitRows();reveal('social');reveal('lab');markLive('social');  // bottom row grows in
               setTimeout(function(){
                 if(cancelled)return;
                 play(S,function(){
                   if(cancelled)return;
-                  setTimeout(function(){
-                    if(cancelled)return;
-                    setStage(4);win.lab.classList.add('open');markLive('lab');
-                    setTimeout(function(){ if(!cancelled) play(L); },480);
-                  },260);
+                  markLive('lab');
+                  setTimeout(function(){ if(!cancelled) play(L); },260);
                 });
-              },480);
-            },260);
+              },GROW);
+            },300);
           });
-        },520);
-      },360);
+        },GROW);
+      },380);
     });
   },360);
 })();
