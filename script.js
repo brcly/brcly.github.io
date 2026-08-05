@@ -18,24 +18,28 @@
   // Clicking a terminal window focuses/highlights it
   Object.keys(win).forEach(function(id){
     win[id].addEventListener('click', function(e){
-      // don't steal focus from links inside
       if(e.target.closest('a')) return;
       focusWin(id);
     });
   });
 
-  // capture each transcript, then (if animating) clear for replay
   function grab(id){var s=d.getElementById(id);return {el:s,nodes:Array.prototype.slice.call(s.children)};}
   var M=grab('mainscr'),P=grab('projscr'),L=grab('labscr'),S=grab('socscr');
 
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   var cancelled=false;
 
+  function setStage(n){
+    desk.classList.remove('stage-2','stage-3','stage-4','tiled');
+    if(n>=2) desk.classList.add('stage-'+n);
+    if(n>=4) desk.classList.add('tiled');
+  }
+
   function restore(prog){prog.el.innerHTML='';prog.nodes.forEach(function(n){prog.el.appendChild(n.cloneNode(true));});}
   function finishAll(){
     if(cancelled)return;cancelled=true;
     restore(M);restore(P);restore(L);restore(S);
-    desk.classList.add('tiled');
+    setStage(4);
     win.lab.classList.add('open');
     win.social.classList.add('open');
     markLive('projects');markLive('lab');markLive('social');focusWin('main');
@@ -44,8 +48,7 @@
   desk.addEventListener('click',function(e){if(!e.target.closest('a'))finishAll();});
 
   if(reduce){
-    // no animation: show everything tiled
-    desk.classList.add('tiled');
+    setStage(4);
     win.lab.classList.add('open');
     win.social.classList.add('open');
     markLive('projects');markLive('lab');markLive('social');
@@ -79,35 +82,39 @@
     })();
   }
 
-  // boot sequence: main → projects → social → lab (matches 2×2 visual order)
+  // Progressive tiling boot:
+  // 1. main full-screen
+  // 2. projects splits vertically (50/50)
+  // 3. social takes full bottom half
+  // 4. lab splits bottom → classic 2×2
   setTimeout(function(){
     play(M,function(){
       if(cancelled)return;
       setTimeout(function(){
         if(cancelled)return;
-        desk.classList.add('tiled');markLive('projects');
+        setStage(2);markLive('projects');
         setTimeout(function(){
           if(cancelled)return;
           play(P,function(){
             if(cancelled)return;
             setTimeout(function(){
               if(cancelled)return;
-              win.social.classList.add('open');markLive('social');
+              setStage(3);win.social.classList.add('open');markLive('social');
               setTimeout(function(){
                 if(cancelled)return;
                 play(S,function(){
                   if(cancelled)return;
                   setTimeout(function(){
                     if(cancelled)return;
-                    win.lab.classList.add('open');markLive('lab');
-                    setTimeout(function(){ if(!cancelled) play(L); },500);
-                  },280);
+                    setStage(4);win.lab.classList.add('open');markLive('lab');
+                    setTimeout(function(){ if(!cancelled) play(L); },480);
+                  },260);
                 });
-              },520);
-            },280);
+              },480);
+            },260);
           });
-        },580);
-      },380);
+        },520);
+      },360);
     });
-  },380);
+  },360);
 })();

@@ -69,6 +69,56 @@ a:hover{color:var(--amber)}
 .tab .x{margin-left:auto;color:#3c3c48}
 .scr{padding:18px 16px;flex:1;overflow-y:auto;min-height:0}
 
+/* progressive tiling stages (desktop) */
+/* stage 1 — main alone, full desk */
+.js #main{
+  grid-column:1 / -1;
+  grid-row:1 / -1;
+}
+/* stage 2 — main | projects  (vertical split, both full height) */
+.desk.stage-2 #main{
+  grid-column:1;
+  grid-row:1 / -1;
+}
+.desk.stage-2 #projects{
+  grid-column:2;
+  grid-row:1 / -1;
+}
+/* stage 3 — top row 50/50, social full bottom */
+.desk.stage-3 #main{
+  grid-column:1;
+  grid-row:1;
+}
+.desk.stage-3 #projects{
+  grid-column:2;
+  grid-row:1;
+}
+.desk.stage-3 #socwin{
+  grid-column:1 / -1;
+  grid-row:2;
+}
+/* stage 4 / tiled — classic 2×2 */
+.desk.stage-4 #main,
+.desk.tiled #main{
+  grid-column:1;
+  grid-row:1;
+}
+.desk.stage-4 #projects,
+.desk.tiled #projects{
+  grid-column:2;
+  grid-row:1;
+}
+.desk.stage-4 #socwin,
+.desk.tiled #socwin{
+  grid-column:1;
+  grid-row:2;
+}
+.desk.stage-4 #labwin,
+.desk.tiled #labwin{
+  grid-column:2;
+  grid-row:2;
+}
+
 /* transcript lines */
 .line{white-space:pre-wrap;word-break:break-word}
 .pr{color:var(--green)}.pa{color:var(--cyan)}.d{color:var(--dim)}
@@ -114,13 +164,21 @@ a:hover{color:var(--amber)}
 .botbar a.mail{color:var(--cyan)}
 
 /* ── staged spawn (JS only; no-js shows everything) ── */
-/* display:none fully removes collapsed panes from layout → no phantom lines */
 .js #projects,
 .js #labwin,
 .js #socwin{
   display:none !important;
 }
-.js .desk.tiled #projects,
+/* reveal windows as their stage arrives */
+.desk.stage-2 #projects,
+.desk.stage-3 #projects,
+.desk.stage-3 #socwin,
+.desk.stage-4 #projects,
+.desk.stage-4 #socwin,
+.desk.stage-4 #labwin,
+.desk.tiled #projects,
+.desk.tiled #socwin,
+.desk.tiled #labwin,
 .js #labwin.open,
 .js #socwin.open{
   display:flex !important;
@@ -129,7 +187,15 @@ a:hover{color:var(--amber)}
   opacity:1;
   overflow:hidden;
 }
-.js .desk.tiled #projects.focus,
+.desk.stage-2 #projects.focus,
+.desk.stage-3 #projects.focus,
+.desk.stage-3 #socwin.focus,
+.desk.stage-4 #projects.focus,
+.desk.stage-4 #socwin.focus,
+.desk.stage-4 #labwin.focus,
+.desk.tiled #projects.focus,
+.desk.tiled #socwin.focus,
+.desk.tiled #labwin.focus,
 .js #labwin.open.focus,
 .js #socwin.open.focus{
   border-color:var(--amber);
@@ -143,6 +209,22 @@ a:hover{color:var(--amber)}
     padding:10px;
     align-items:start;
   }
+  /* kill progressive spanning on mobile — stack normally */
+  .js #main,
+  .desk.stage-2 #main,
+  .desk.stage-3 #main,
+  .desk.stage-3 #socwin,
+  .desk.stage-4 #main,
+  .desk.stage-4 #projects,
+  .desk.stage-4 #socwin,
+  .desk.stage-4 #labwin,
+  .desk.tiled #main,
+  .desk.tiled #projects,
+  .desk.tiled #socwin,
+  .desk.tiled #labwin{
+    grid-column:auto;
+    grid-row:auto;
+  }
   .win{
     height:auto;
   }
@@ -155,7 +237,15 @@ a:hover{color:var(--amber)}
   .js #socwin{
     display:none !important;
   }
-  .js .desk.tiled #projects,
+  .desk.stage-2 #projects,
+  .desk.stage-3 #projects,
+  .desk.stage-3 #socwin,
+  .desk.stage-4 #projects,
+  .desk.stage-4 #socwin,
+  .desk.stage-4 #labwin,
+  .desk.tiled #projects,
+  .desk.tiled #socwin,
+  .desk.tiled #labwin,
   .js #labwin.open,
   .js #socwin.open{
     display:flex !important;
@@ -163,9 +253,6 @@ a:hover{color:var(--amber)}
     border:1px solid var(--edge);
     height:auto;
   }
-  .js .desk.tiled #projects.focus,
-  .js #labwin.open.focus,
-  .js #socwin.open.focus{border-color:var(--amber)}
   .brand{display:none}
   .topbar{padding:8px 10px;gap:6px}
   .tb-right{gap:8px;font-size:12px}
