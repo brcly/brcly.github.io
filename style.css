@@ -58,7 +58,7 @@ a:hover{color:var(--amber)}
 .out{display:block;margin:2px 0 15px}
 .out:last-child{margin-bottom:0}
 .whoami{overflow:hidden}
-.mini{float:left;width:92px;height:92px;image-rendering:pixelated;border:1px solid var(--edge);
+.mini{float:left;width:92px;height:92px;image-rendering:auto;border:1px solid var(--edge);
   border-radius:6px;margin:2px 15px 6px 0;filter:contrast(1.05) saturate(1.05)}
 .head{color:var(--amber);font-weight:700;font-size:19px;letter-spacing:1px}
 .sub{color:var(--dim)}
