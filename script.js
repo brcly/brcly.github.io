@@ -32,12 +32,19 @@
   function reveal(id){win[id].classList.add('open');}
   function splitCols(){desk.classList.add('split-cols');}
   function splitRows(){desk.classList.add('split-rows');}
+  function openLab(){
+    var bottom=d.getElementById('bottom');
+    if(bottom) bottom.classList.add('lab-open');
+    reveal('lab');
+  }
 
   function restore(prog){prog.el.innerHTML='';prog.nodes.forEach(function(n){prog.el.appendChild(n.cloneNode(true));});}
   function finishAll(){
     if(cancelled)return;cancelled=true;
     restore(M);restore(P);restore(L);restore(S);
     splitCols();splitRows();
+    var bottom=d.getElementById('bottom');
+    if(bottom) bottom.classList.add('lab-open');
     reveal('projects');reveal('social');reveal('lab');
     markLive('projects');markLive('social');markLive('lab');focusWin('main');
   }
@@ -46,6 +53,8 @@
 
   if(reduce){
     splitCols();splitRows();
+    var bottom=d.getElementById('bottom');
+    if(bottom) bottom.classList.add('lab-open');
     reveal('projects');reveal('social');reveal('lab');
     markLive('projects');markLive('social');markLive('lab');
     return;
@@ -81,27 +90,31 @@
   // Progressive tiling boot (tracks animate → panes grow in smoothly):
   //  1. main fills the desk and types
   //  2. right column grows → projects spawns, then types
-  //  3. bottom row grows → social + lab spawn; social types, then lab types
+  //  3. bottom row grows → social full-width, types its links
+  //  4. lab splits in beside social, then types
   var GROW=520;   // ~matches the .5s track transition so a re-tile settles first
   setTimeout(function(){
     play(M,function(){
       if(cancelled)return;
       setTimeout(function(){
         if(cancelled)return;
-        splitCols();reveal('projects');markLive('projects');       // column grows in
+        splitCols();reveal('projects');markLive('projects');
         setTimeout(function(){
           if(cancelled)return;
           play(P,function(){
             if(cancelled)return;
             setTimeout(function(){
               if(cancelled)return;
-              splitRows();reveal('social');reveal('lab');markLive('social');  // bottom row grows in
+              splitRows();reveal('social');markLive('social');  // social full bottom
               setTimeout(function(){
                 if(cancelled)return;
                 play(S,function(){
                   if(cancelled)return;
-                  markLive('lab');
-                  setTimeout(function(){ if(!cancelled) play(L); },260);
+                  setTimeout(function(){
+                    if(cancelled)return;
+                    openLab();markLive('lab');                 // lab splits in
+                    setTimeout(function(){ if(!cancelled) play(L); },GROW);
+                  },280);
                 });
               },GROW);
             },300);

@@ -1,3 +1,19 @@
+/* Terminess Nerd Font Mono — local preview subset */
+@font-face{
+  font-family:'Terminess Nerd Font Mono';
+  src:url('fonts/TerminessNerdFontMono-Regular.woff2') format('woff2');
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Terminess Nerd Font Mono';
+  src:url('fonts/TerminessNerdFontMono-Bold.woff2') format('woff2');
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+
 :root{
   --bg:#0b0b0f; --panel:#14141d; --panel2:#0f0f17; --edge:#272733;
   --fg:#d7d7de; --dim:#7c7c8d; --amber:#e2bc8c; --cyan:#6fc7d4;
@@ -5,7 +21,7 @@
   --p1:#8f745c;--p2:#e0ebe6;--p3:#b3cdd2;--p4:#9ca9a6;--p5:#d5b097;--p6:#eacbb3;--p7:#a06a48;--p8:#686154;
   --gap:12px;
   --ease:cubic-bezier(.4,0,.2,1);
-  --mono:'JetBrains Mono','Fira Code','DejaVu Sans Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --mono:'Terminess Nerd Font Mono','TerminessNerdFontMono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -14,7 +30,8 @@ body{margin:0;min-height:100vh;display:flex;flex-direction:column;
     radial-gradient(1100px 700px at 12% -5%,#181422 0%,transparent 52%),
     radial-gradient(900px 600px at 100% 105%,#0f1a1c 0%,transparent 55%),
     var(--bg);
-  color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  color:var(--fg);font-family:var(--mono);font-size:15px;line-height:1.35;
+  -webkit-font-smoothing:none;font-smooth:never}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
   background:repeating-linear-gradient(0deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
 a{color:var(--cyan);text-decoration:none}
@@ -64,11 +81,23 @@ a:hover{color:var(--amber)}
   transition:grid-template-columns .5s var(--ease),
              grid-template-rows .5s var(--ease);
 }
-/* fixed placement — no grid-area jumps, only track sizes change */
-#main{grid-area:1 / 1}
-#projects{grid-area:1 / 2}
-#socwin{grid-area:2 / 1}
-#labwin{grid-area:2 / 2}
+/* fixed placement — tracks grow */
+#main{grid-column:1;grid-row:1}
+#projects{grid-column:2;grid-row:1}
+/* bottom row spans full desk width; its own columns animate for lab */
+.bottom{
+  grid-column:1 / -1;
+  grid-row:2;
+  display:grid;
+  grid-template-columns:1fr 0fr;
+  gap:0;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  transition:grid-template-columns .5s var(--ease), gap .5s var(--ease);
+}
+.bottom.lab-open{grid-template-columns:1fr 1fr;gap:var(--gap)}
+#socwin,#labwin{min-width:0;min-height:0}
 .desk.split-cols{grid-template-columns:1fr 1fr}
 .desk.split-rows{grid-template-rows:1fr 1fr}
 
@@ -96,7 +125,7 @@ a:hover{color:var(--amber)}
 .scr{padding:18px 16px;flex:1;overflow-y:auto;min-height:0}
 
 /* ── spawn reveal (JS only; no-js shows everything) ──
-   Spawning panes fade + settle in as their track grows. #main is always shown. */
+   All side panes fade+scale; tracks (desk cols/rows + bottom cols) do the grow. */
 .js #projects,
 .js #socwin,
 .js #labwin{
@@ -118,7 +147,7 @@ a:hover{color:var(--amber)}
 .line{white-space:pre-wrap;word-break:break-word}
 .pr{color:var(--green)}.pa{color:var(--cyan)}.d{color:var(--dim)}
 .cmdtext{color:var(--fg)}
-.out{display:block;margin:2px 0 15px}
+.out{display:block;margin:2px 0 11px}
 .out:last-child{margin-bottom:0}
 .whoami{overflow:hidden}
 .mini{float:left;width:92px;height:92px;image-rendering:auto;border:1px solid var(--edge);
@@ -170,7 +199,12 @@ a:hover{color:var(--amber)}
     align-items:start;
     transition:none;
   }
-  #main,#projects,#socwin,#labwin{grid-area:auto}
+  #main,#projects,#socwin,#labwin{grid-area:auto;grid-column:auto;grid-row:auto}
+  .bottom{
+    grid-column:auto;grid-row:auto;
+    display:contents; /* children participate in parent stack */
+    transition:none;
+  }
   .win{height:auto}
   .scr{overflow-y:visible;flex:none}
   .js #projects,
@@ -199,7 +233,7 @@ a:hover{color:var(--amber)}
   .whoami .head,.whoami .sub{display:block}
 }
 @media (prefers-reduced-motion:reduce){
-  .desk{transition:none}
-  .js #projects,.js #socwin,.js #labwin{transition:none}
+  .desk,.bottom{transition:none}
+  .js #projects,.js #socwin,.js #labwin{transition:none;clip-path:none;transform:none}
   .cursor{animation:none}
 }

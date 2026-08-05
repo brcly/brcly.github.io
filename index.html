@@ -3,11 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>brcly.xyz — improved preview</title>
+<title>brcly.xyz</title>
 <script>document.documentElement.className='js';</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,7 +17,7 @@
     </nav>
     <div class="brand">BRCLY</div>
     <div class="tb-right">
-      <span class="pill">CachyOS</span>
+      <span class="pill">Arch btw</span>
       <span>wm <b>tiling</b></span>
       <span id="clock"><b>--:--</b></span>
     </div>
@@ -74,6 +71,8 @@
         </div>
       </section>
 
+    <!-- bottom row: social then lab (lab column grows 0fr→1fr) -->
+    <div class="bottom" id="bottom">
     <!-- WINDOW 3 · social -->
     <section class="win" id="socwin">
         <div class="tab"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
@@ -113,6 +112,7 @@
           <div class="line finalprompt"><span class="pr">brcly@xyz</span><span class="d">:</span><span class="pa">~/lab</span><span class="d">$</span> <span class="cursor"></span></div>
         </div>
       </section>
+    </div>
   </main>
 
   <div class="botbar">
